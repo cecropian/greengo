@@ -38,6 +38,7 @@ import Dialog from "@material-ui/core/Dialog";
 import { ToastContainer } from "react-toastr";
 
 import Signin from "./Signin";
+import ForgotPassword from "./ForgotPassword";
 import { emailsSubscriptionChart } from "variables/charts.jsx";
 import styles from "assets/jss/material-dashboard-react/layouts/dashboard2Style.jsx";
 // import AWSCognito from "assets/jss/material-dashboard-react/layouts/dashboard2Style.jsx";
@@ -82,12 +83,12 @@ class Dashboard2 extends React.Component {
     this.setState({ loginOpen: false });
   };
 
-  handleClickConfirmationCodeOpen = () => {
+  handleClickForgotPasswordOpen = () => {
     this.handleLoginClose();
     this.setState({ forgotOpen: true });
   };
 
-  handleConfirmationCodeClose = () => {
+  handleForgotPasswordClose = () => {
     this.setState({ forgotOpen: false });
   };
 
@@ -205,7 +206,9 @@ class Dashboard2 extends React.Component {
                         data={emailsSubscriptionChart.data}
                         type="Bar"
                         options={emailsSubscriptionChart.options}
-                        responsiveOptions={emailsSubscriptionChart.responsiveOptions}
+                        responsiveOptions={
+                          emailsSubscriptionChart.responsiveOptions
+                        }
                         listener={emailsSubscriptionChart.animation}
                         style={{ height: "500px" }}
                       />
@@ -224,14 +227,15 @@ class Dashboard2 extends React.Component {
                       <CardIcon color="primary">
                         <LibraryBooks />
                       </CardIcon>
-                      <h3 className={classes.cardTitle} style={{color: "black"}}>
+                      <h3
+                        className={classes.cardTitle}
+                        style={{color: "black"}}
+                      >
                         Backlog
                       </h3>
                     </CardHeader>
                     <CardFooter stats>
-                      <div className={classes.stats}>
-                        Backlog
-                      </div>
+                      <div className={classes.stats}>Backlog</div>
                     </CardFooter>
                   </Card>
                 </GridItem>
@@ -241,7 +245,10 @@ class Dashboard2 extends React.Component {
                       <CardIcon color="warning">
                         <Ballot />
                       </CardIcon>
-                      <h3 className={classes.cardTitle} style={{color: "black"}}>
+                      <h3
+                        className={classes.cardTitle}
+                        style={{color: "black"}}
+                      >
                         TODO
                       </h3>
                     </CardHeader>
@@ -259,7 +266,10 @@ class Dashboard2 extends React.Component {
                       <CardIcon color="info">
                         <Loop />
                       </CardIcon>
-                      <h3 className={classes.cardTitle} style={{color: "black"}}>
+                      <h3
+                        className={classes.cardTitle}
+                        style={{color: "black"}}
+                      >
                         In Progess
                       </h3>
                     </CardHeader>
@@ -301,7 +311,14 @@ class Dashboard2 extends React.Component {
           onClose={this.handleLoginClose}
           aria-labelledby="form-dialog-login"
         >
-          <Signin />
+          <Signin forgotpassword={this.handleClickForgotPasswordOpen} />
+        </Dialog>
+        <Dialog
+          open={this.state.forgotOpen}
+          onClose={this.handleForgotPasswordClose}
+          aria-labelledby="form-dialog-password"
+        >
+          <ForgotPassword />
         </Dialog>
       </div>
     );
