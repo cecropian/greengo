@@ -21,27 +21,27 @@ import ChartistGraph from "react-chartist";
 import DateRange from "@material-ui/icons/DateRange";
 import LocalOffer from "@material-ui/icons/LocalOffer";
 import Update from "@material-ui/icons/Update";
-
 import { Done, Loop, LibraryBooks, Ballot } from "@material-ui/icons";
 
 // core components
 import GridItem from "components/Grid/GridItem.jsx";
 import GridContainer from "components/Grid/GridContainer.jsx";
 import Table from "components/Table/Table.jsx";
-
 import Card from "components/Card/Card.jsx";
 import CardHeader from "components/Card/CardHeader.jsx";
 import CardIcon from "components/Card/CardIcon.jsx";
 import CardBody from "components/Card/CardBody.jsx";
 import CardFooter from "components/Card/CardFooter.jsx";
 import Dialog from "@material-ui/core/Dialog";
-import { ToastContainer } from "react-toastr";
 
-import Signin from "./Signin";
-import ForgotPassword from "./ForgotPassword";
+import ConfirmCode from "components/UserManagement/ConfirmCode";
+import ForgotPassword from "components/UserManagement/ForgotPassword";
+import Login from "components/UserManagement/Login";
+import Register from "components/UserManagement/Register";
+import ResendCode from "components/UserManagement/ResendCode";
+import SetPassword from "components/UserManagement/SetPassword";
 import { emailsSubscriptionChart } from "variables/charts.jsx";
 import styles from "assets/jss/material-dashboard-react/layouts/dashboard2Style.jsx";
-// import AWSCognito from "assets/jss/material-dashboard-react/layouts/dashboard2Style.jsx";
 
 function TabContainer(props) {
   return (
@@ -52,14 +52,19 @@ function TabContainer(props) {
 }
 
 TabContainer.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired
 };
 
 class Dashboard2 extends React.Component {
   state = {
     open: true,
+    forgotPasswordOpen: false,
     loginOpen: false,
-    forgotOpen: false,
+    registerOpen: false,
+    resendCodeOpen: false,
+    confirmCodeOpen: false,
+    setPasswordOpen: false,
+    username: "",
     value: 0,
     poolData: {
       UserPoolId: "us-east-1_1v5zwuw2i", // us-east-1_94f0CgD1D
@@ -75,51 +80,115 @@ class Dashboard2 extends React.Component {
     this.setState({ open: false });
   };
 
+  handleClickForgotPasswordOpen = () => {
+    this.handleCloseRemaining("ForgotPassword");
+    this.setState({ forgotPasswordOpen: true });
+  };
+
+  handleForgotPasswordClose = () => {
+    this.setState({ forgotPasswordOpen: false });
+  };
+
   handleClickLoginOpen = () => {
+    this.handleCloseRemaining("Login");
     this.setState({ loginOpen: true });
+  };
+
+  handleDialogClose = prop => {
+    this.setState({ [prop]: false });
   };
 
   handleLoginClose = () => {
     this.setState({ loginOpen: false });
   };
 
-  handleClickForgotPasswordOpen = () => {
-    this.handleLoginClose();
-    this.setState({ forgotOpen: true });
+  handleClickRegisterOpen = () => {
+    this.handleCloseRemaining("Register");
+    this.setState({ registerOpen: true });
   };
 
-  handleForgotPasswordClose = () => {
-    this.setState({ forgotOpen: false });
+  handleRegisterClose = () => {
+    this.setState({ registerOpen: false });
+  };
+
+  handleClickResendCodeOpen = () => {
+    this.handleCloseRemaining("ResendCode");
+    this.setState({ resendCodeOpen: true });
+  };
+
+  handleResendCodeClose = () => {
+    this.setState({ resendCodeOpen: false });
+  };
+
+  handleClickSetPasswordOpen = () => {
+    this.handleCloseRemaining("SetPassword");
+    this.setState({ setPasswordOpen: true });
+  };
+
+  handleSetPasswordClose = () => {
+    this.setState({ setPasswordOpen: false });
+  };
+
+  handleClickConfirmCodeOpen = username => {
+    this.handleCloseRemaining("ConfirmCode");
+    this.setState({ username });
+    this.setState({ confirmCodeOpen: true });
+  };
+
+  handleConfirmCodeClose = () => {
+    this.setState({ confirmCodeOpen: false });
   };
 
   handleChange = (event, value) => {
     this.setState({ value });
   };
 
+  handleCloseRemaining = remaining => {
+    if (remaining !== "ForgotPassword") {
+      this.handleForgotPasswordClose();
+    }
+    if (remaining !== "Login") {
+      this.handleLoginClose();
+    }
+    if (remaining !== "Register") {
+      this.handleRegisterClose();
+    }
+    if (remaining !== "ResendCode") {
+      this.handleResendCodeClose();
+    }
+    if (remaining !== "ConfirmCode") {
+      this.handleConfirmCodeClose();
+    }
+    if (remaining !== "SetPassword") {
+      this.handleSetPasswordClose();
+    }
+  };
+
   render() {
     const { classes } = this.props;
     const { value } = this.state;
-    let container;
 
     return (
       <div className={classes.root}>
-        <ToastContainer
-          ref={ref => (container = ref)}
-          className="toast-top-left"
-        />
         <CssBaseline />
         <AppBar
           position="absolute"
-          className={classNames(classes.appBar, this.state.open && classes.appBarShift)}
+          className={classNames(
+            classes.appBar,
+            this.state.open && classes.appBarShift
+          )}
         >
-          <Toolbar disableGutters={!this.state.open} className={classes.toolbar}>
+          <Toolbar
+            disableGutters={!this.state.open}
+            className={classes.toolbar}
+          >
             <IconButton
               color="inherit"
               aria-label="Open drawer"
               onClick={this.handleDrawerOpen}
               className={classNames(
                 classes.menuButton,
-                this.state.open && classes.menuButtonHidden,
+                this.state.open && classes.menuButtonHidden
               )}
             >
               <MenuIcon />
@@ -229,7 +298,7 @@ class Dashboard2 extends React.Component {
                       </CardIcon>
                       <h3
                         className={classes.cardTitle}
-                        style={{color: "black"}}
+                        style={{ color: "black" }}
                       >
                         Backlog
                       </h3>
@@ -247,7 +316,7 @@ class Dashboard2 extends React.Component {
                       </CardIcon>
                       <h3
                         className={classes.cardTitle}
-                        style={{color: "black"}}
+                        style={{ color: "black" }}
                       >
                         TODO
                       </h3>
@@ -268,7 +337,7 @@ class Dashboard2 extends React.Component {
                       </CardIcon>
                       <h3
                         className={classes.cardTitle}
-                        style={{color: "black"}}
+                        style={{ color: "black" }}
                       >
                         In Progess
                       </h3>
@@ -311,14 +380,58 @@ class Dashboard2 extends React.Component {
           onClose={this.handleLoginClose}
           aria-labelledby="form-dialog-login"
         >
-          <Signin forgotpassword={this.handleClickForgotPasswordOpen} />
+          <Login
+            showRegister={this.handleClickRegisterOpen}
+            showForgotPassword={this.handleClickForgotPasswordOpen}
+            showResendCode={this.handleClickResendCodeOpen}
+            username={this.state.username}
+          />
         </Dialog>
         <Dialog
-          open={this.state.forgotOpen}
+          open={this.state.forgotPasswordOpen}
           onClose={this.handleForgotPasswordClose}
-          aria-labelledby="form-dialog-password"
+          aria-labelledby="form-dialog-forgotpassword"
         >
-          <ForgotPassword />
+          <ForgotPassword
+            showRegister={this.handleClickRegisterOpen}
+            showLogin={this.handleClickLoginOpen}
+          />
+        </Dialog>
+        <Dialog
+          open={this.state.registerOpen}
+          onClose={this.handleRegisterClose}
+          aria-labelledby="form-dialog-register"
+        >
+          <Register showLogin={this.handleClickLoginOpen} />
+        </Dialog>
+        <Dialog
+          open={this.state.resendCodeOpen}
+          onClose={this.handleResendCodeClose}
+          aria-labelledby="form-dialog-resendcode"
+        >
+          <ResendCode
+            showRegister={this.handleClickRegisterOpen}
+            showLogin={this.handleClickLoginOpen}
+          />
+        </Dialog>
+        <Dialog
+          open={this.state.confirmCodeOpen}
+          onClose={this.handleConfirmCodeClose}
+          aria-labelledby="form-dialog-confirmcode"
+        >
+          <ConfirmCode
+            showRegister={this.handleClickRegisterOpen}
+            showLogin={this.handleClickLoginOpen}
+            showResendCode={this.handleClickResendCodeOpen}
+            username={this.state.username}
+          />
+        </Dialog>
+        <Dialog
+          open={this.state.setPasswordOpen}
+          onClose={this.handleSetPasswordClose}
+          aria-labelledby="form-dialog-setpassword"
+        >
+          <SetPassword />
         </Dialog>
       </div>
     );

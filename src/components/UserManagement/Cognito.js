@@ -1,9 +1,8 @@
 import {
   CognitoUserPool,
-  CognitoUserAttribute,
   CognitoUser,
   AuthenticationDetails
-} from "amazon-cognito-identity-js"
+} from "amazon-cognito-identity-js";
 
 const poolData = {
   UserPoolId: "us-east-1_1v5zwuw2i", // us-east-1_94f0CgD1D
@@ -12,19 +11,11 @@ const poolData = {
 
 const userPool = new CognitoUserPool(poolData);
 
-export const createUser = (username, email, password, callback) => {
-  const attributeList = [
-    new CognitoUserAttribute({
-      Name: "email",
-      Value: email
-    })
-  ];
-
+export const createUser = (username, password, attributeList, callback) => {
+  userPool.signUp(username, password, attributeList, null, callback);
   // Username must be unique in a pool, and cant be a valid email format
   // To log in with email, make sure it is set as an alias attribute in Cognito
   // More info: http://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#user-pool-settings-usernames
-
-  userPool.signUp(username, password, attributeList, null, callback)
 };
 
 export const verifyUser = (username, verifyCode, callback) => {
@@ -41,7 +32,7 @@ export const authenticateUser = (email, password, callback) => {
     Username: email,
     Password: password
   };
-  const authDetails = new AuthenticationDetails(authData)
+  const authDetails = new AuthenticationDetails(authData);
   const userData = {
     Username: email,
     Pool: userPool
@@ -58,12 +49,12 @@ export const authenticateUser = (email, password, callback) => {
 };
 
 export const signOut = () => {
-  userPool.getCurrentUser().signOut()
-  window.location.reload()
+  userPool.getCurrentUser().signOut();
+  window.location.reload();
 };
 
 export const getCurrentUser = callback => {
-  const cognitoUser = userPool.getCurrentUser()
+  const cognitoUser = userPool.getCurrentUser();
   if (!cognitoUser) return false;
 
   cognitoUser.getSession((err, session) => {
@@ -76,6 +67,85 @@ export const getCurrentUser = callback => {
     });
   });
 };
+
+/*
+export const handleCognitoExceptions = (err, username) => {
+  switch (err.code) {
+    case "AliasExistsException":
+      toastr["warning"](
+        "Another customer is using the email or phone entered. Please change one or both and retry",
+        "Invalid Email or Phone"
+      );
+      break;
+    case "CodeDeliveryFailureException":
+      toastr["error"](
+        "Please verify your email with your admin.",
+        "Code Delivery Failed"
+      );
+      break;
+    case "CodeMismatchException":
+      toastr["error"](
+        "That code does not match the one sent.",
+        "Code Mismatch"
+      );
+      break;
+    case "ExpiredCodeException":
+      toastr["warning"](
+        "That code matches an expired code. Please request another.",
+        "Expired Code"
+      );
+      break;
+    case "InvalidEmailRoleAccessPolicyException":
+      toastr["error"](err.message, "Invalid Username");
+      break;
+    case "InvalidPasswordException":
+      toastr["warning"](
+        "Wrong Username or Password provided. Please try again.",
+        "Invalid Password or Username"
+      );
+      break;
+    case "InternalErrorException":
+    case "InvalidLambdaResponseException":
+    case "InvalidParameterException":
+    case "InvalidSmsRoleAccessPolicyException":
+    case "InvalidSmsRoleTrustRelationshipException":
+    case "InvalidUserPoolConfigurationException":
+    case "LimitExceededException":
+    case "ResourceNotFoundException":
+    case "UnexpectedLambdaException":
+    case "UserLambdaValidationException":
+      toastr["error"](err.message, "Server Error");
+      break;
+    case "NotAuthorizedException":
+      toastr["error"](err.message, "Not Authorized");
+      break;
+    case "PasswordResetRequiredException":
+      toastr["warning"](err.message, "Reset Password Required");
+      this.handleClickForgotPasswordOpen("Reset Password");
+      break;
+    case "TooManyFailedAttemptsException":
+    case "TooManyRequestsException":
+      toastr["warning"](err.message, "Login Attempts Exceeded");
+      this.handleClickForgotPasswordOpen("Reset Password");
+      break;
+    case "UsernameExistsException":
+      toastr["warning"](
+        `Username: ${username} has already been used. Please try another.`,
+        "Username Exists"
+      );
+      break;
+    case "UserNotConfirmedException":
+      toastr["warning"](err.message, "Confirmation Required");
+      this.handleClickConfirmationCodeOpen(username);
+      break;
+    case "UserNotFoundException":
+      toastr["error"](err.message, "User Not Found");
+      break;
+    default:
+      toastr["error"](err.message, err.code);
+  }
+};
+*/
 
 /*
   authenticateUser = () => {
@@ -168,80 +238,4 @@ export const getCurrentUser = callback => {
 */
 
 /*
-  handleCognitoExceptions = (err, username) => {
-    switch (err.code) {
-      case "AliasExistsException":
-        toastr["warning"](
-          "Another customer is using the email or phone entered. Please change one or both and retry",
-          "Invalid Email or Phone"
-        );
-        break;
-      case "CodeDeliveryFailureException":
-        toastr["error"](
-          "Please verify your email with your admin.",
-          "Code Delivery Failed"
-        );
-        break;
-      case "CodeMismatchException":
-        toastr["error"](
-          "That code does not match the one sent.",
-          "Code Mismatch"
-        );
-        break;
-      case "ExpiredCodeException":
-        toastr["warning"](
-          "That code matches an expired code. Please request another.",
-          "Expired Code"
-        );
-        break;
-      case "InvalidEmailRoleAccessPolicyException":
-        toastr["error"](err.message, "Invalid Username");
-        break;
-      case "InvalidPasswordException":
-        toastr["warning"](
-          "Wrong Username or Password provided. Please try again.",
-          "Invalid Password or Username"
-        );
-        break;
-      case "InternalErrorException":
-      case "InvalidLambdaResponseException":
-      case "InvalidParameterException":
-      case "InvalidSmsRoleAccessPolicyException":
-      case "InvalidSmsRoleTrustRelationshipException":
-      case "InvalidUserPoolConfigurationException":
-      case "LimitExceededException":
-      case "ResourceNotFoundException":
-      case "UnexpectedLambdaException":
-      case "UserLambdaValidationException":
-        toastr["error"](err.message, "Server Error");
-        break;
-      case "NotAuthorizedException":
-        toastr["error"](err.message, "Not Authorized");
-        break;
-      case "PasswordResetRequiredException":
-        toastr["warning"](err.message, "Reset Password Required");
-        this.handleClickForgotPasswordOpen("Reset Password");
-        break;
-      case "TooManyFailedAttemptsException":
-      case "TooManyRequestsException":
-        toastr["warning"](err.message, "Login Attempts Exceeded");
-        this.handleClickForgotPasswordOpen("Reset Password");
-        break;
-      case "UsernameExistsException":
-        toastr["warning"](
-          `Username: ${username} has already been used. Please try another.`,
-          "Username Exists"
-        );
-        break;
-      case "UserNotConfirmedException":
-        toastr["warning"](err.message, "Confirmation Required");
-        this.handleClickConfirmationCodeOpen(username);
-        break;
-      case "UserNotFoundException":
-        toastr["error"](err.message, "User Not Found");
-        break;
-      default:
-        toastr["error"](err.message, err.code);
-    }
-  };
-  */
+    */
